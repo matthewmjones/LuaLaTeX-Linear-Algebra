@@ -1,0 +1,70 @@
+\documentclass[11pt]{article}
+\usepackage{amsfonts,amsmath,amsthm}
+\usepackage{xfrac}
+\title{Lua Test}
+\author{Matthew Jones}
+\date{\today}
+
+\usepackage[a4paper, margin = 1.25cm]{geometry}
+\usepackage{fontspec}
+\setmainfont{Arial}
+\usepackage{firamath-otf}
+
+\begin{document}
+
+\maketitle
+
+\section*{Example: elementary Gauss-Jordan}
+\directlua{
+    require "RationalAlg"
+    
+    M = {
+    {Rational:new(nil, 4), Rational:new(nil,12),Rational:new(nil,4),Rational:new(nil,0)},
+    {Rational:new(nil, 6), Rational:new(nil,3),Rational:new(nil,-6),Rational:new(nil,9)},
+    {Rational:new(nil,6),Rational:new(nil,-7),Rational:new(nil,-14),Rational:new(nil,15)},
+    {Rational:new(nil,-9),Rational:new(nil,13),Rational:new(nil,23),Rational:new(nil,-24)}
+    }
+
+    tex.print("\\[A = "..RationalAlg.MatrixToTex(M,true).."\\]")
+
+    A, R = RationalAlg.GaussJordanRowReduce(M)
+    
+}
+
+\directlua{
+    tex.print(RationalAlg.RowOpListToTeX(R,2,true))
+}
+
+\section*{Example: finding an inverse using Gauss-Jordan}
+
+\directlua{
+    M = {
+        {Rational:new(nil,2), Rational:new(nil,3), Rational:new(nil,-2)},
+        {Rational:new(nil,1), Rational:new(nil,0), Rational:new(nil,4)},
+        {Rational:new(nil,5), Rational:new(nil,2), Rational:new(nil,3)}    
+    }
+}
+
+To find the inverse of the matrix
+\directlua{
+    tex.print("\\[A = "..RationalAlg.MatrixToTex(M,true).."\\]")
+}
+
+First we define the augmented matrix by including a 3x3 identity matrix,
+
+\directlua{
+    MA = RationalAlg.Augment(M, RationalAlg.IdentityMatrix(3))
+    tex.print("\\["..RationalAlg.MatrixToTex(MA,true).."\\]")
+}
+
+We then row reduce this matrix using Gauss-Jordan
+
+\directlua{
+    A, R = RationalAlg.GaussJordanRowReduce(MA)
+    tex.print(RationalAlg.RowOpListToTeX(R,2,true))
+}
+
+It follows that the inverse is given by
+\[ A^{-1} = \frac{1}{31}\begin{pmatrix}-8 & -13 & 12\\ 17 & 16 & -10\\2 & 11 & -3\end{pmatrix}\]
+
+\end{document}
