@@ -217,6 +217,39 @@ function RationalAlg.Augment(m, n)
     return p
 end
 
+-- returns the two matrices formed by splitting the matrix
+function RationalAlg.Split(m, c)
+    local cols = RationalAlg.GetNumberOfCols(m)
+    local rows = RationalAlg.GetNumberOfRows(m)
+
+    if cols == c then
+        return m
+    end
+
+    if cols < c then
+        return nil, nil
+    end
+
+    if cols > c then
+        local leftmat = {}
+        local rightmat = {}
+
+        for i = 1, rows do
+            leftmat[i] = {}
+            rightmat[i] = {}
+
+            for j = 1, cols do
+                if j <= c then
+                    leftmat[i][j] = m[i][j]
+                else
+                    rightmat[i][j - c] = m[i][j]
+                end
+            end
+        end
+        return leftmat, rightmat
+    end
+end
+
 function RationalAlg.GaussianRowReduce(m)
     local result = {}
     -- the result will be a table {row operation = matrix }

@@ -64,6 +64,12 @@ We then row reduce this matrix using Gauss-Jordan
 }
 
 It follows that the inverse is given by
-\[ A^{-1} = \frac{1}{31}\begin{pmatrix}-8 & -13 & 12\\ 17 & 16 & -10\\2 & 11 & -3\end{pmatrix}\]
+
+\directlua{
+    l, r = RationalAlg.Split(A, 3)
+    tex.print("\\[ A^{-1} = " .. RationalAlg.MatrixToTex(r,true) .. "\\]")
+}
+
+
 
 \end{document}

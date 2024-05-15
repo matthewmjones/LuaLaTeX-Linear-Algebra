@@ -153,6 +153,10 @@ function Rational:totexstring(xfrac)
     if self.denominator == 1 then
         return tostring(self.numerator)
     else
-        return fraccommand.."{" .. tostring(self.numerator).."}{"..tostring(self.denominator).."}"
+        if self.numerator < 0 then
+            return "-" .. fraccommand.."{" .. tostring(-self.numerator).."}{"..tostring(self.denominator).."}"
+        else
+            return fraccommand.."{" .. tostring(self.numerator).."}{"..tostring(self.denominator).."}"
+        end
     end
 end
