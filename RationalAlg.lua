@@ -35,14 +35,20 @@ function RationalAlg.MatrixToString(m)
     return result
 end
 
-function RationalAlg.RandomMatrix(rows, cols)
+function RationalAlg.RandomMatrix(rows, cols, integer)
+    integer = integer or false
     local M = {}
     for a = 1, rows do
         M[a] = {}
         for b = 1, cols do
-            M[a][b] = Rational:new({
-                numerator = math.random(-5,5),
-                denominator = math.random(1,10)})
+            if integer then
+                M[a][b] = Rational:new({
+                    numerator = math.random(-5,5),1})
+            else
+                M[a][b] = Rational:new({
+                    numerator = math.random(-5,5),
+                    denominator = math.random(1,10)})
+            end            
         end
     end
     return M
