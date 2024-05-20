@@ -102,6 +102,12 @@ First we define the augmented matrix by including a 3x3 identity matrix,
     MA = RationalAlg.Augment(M, RationalAlg.IdentityMatrix(3))
     tex.print("\\["..RationalAlg.MatrixToTex(MA,true).."\\]")
 }
+We then row reduce this matrix using Gauss-Jordan
+\directlua{
+    A, R = RationalAlg.GaussJordanRowReduce(MA)
+    tex.print(RationalAlg.RowOpListToTeX(R,2,true))
+}
+
 It follows that the inverse is given by,
 \directlua{
     l, r = RationalAlg.Split(A, 3)
