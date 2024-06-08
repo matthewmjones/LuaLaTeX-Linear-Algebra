@@ -7,6 +7,7 @@ function Rational:new(t, numerator, denominator)
     t = t or {}
     setmetatable(t, self)
     self.__index = self
+    self.__type = "Rational"
     self.numerator = numerator or 0
     self.denominator = denominator or 1
     t = lowest_form(t)
@@ -14,11 +15,11 @@ function Rational:new(t, numerator, denominator)
 end
 
 function Rational.ONE()
-    return Rational:new(nil, 1, 1)
+    return Rational:new({numerator = 1, denominator = 1})
 end
 
 function Rational.ZERO()
-    return Rational:new(nil, 0, 1)
+    return Rational:new({numerator = 0, denominator = 1})
 end
 
 function lowest_form(t)
@@ -34,54 +35,68 @@ function lowest_form(t)
     return t
 end
 
-function Rational:multiply(R)
+function Rational.__mul(r,s)
     local result = Rational:new()
 
-    if type(R) == "number" then
-        result.numerator = self.numerator * R
-        result.denominator = self.denominator
-    else
-        result.numerator = self.numerator * R.numerator
-        result.denominator = self.denominator * R.denominator
+    if type(r) == "number" then
+        r = Rational:new(nil, r, 1)
     end
+    if type(s) == "number" then
+        s = Rational:new(nil, s, 1)
+    end
+    
+    result.numerator = s.numerator * r.numerator
+    result.denominator = s.denominator * r.denominator
+
     result = lowest_form(result)
     return result
 end
 
-function Rational:divide(R)
+function Rational.__div(r,s)
     local result = Rational:new()
 
-    if type(R) == "number" then
-        result.numerator = self.numerator
-        result.denominator = self.denominator * R
-    else
-        result.numerator = self.numerator * R.denominator
-        result.denominator = self.denominator * R.numerator
+    if type(r) == "number" then
+        r = Rational:new(nil, r, 1)
     end
+    if type(s) == "number" then
+        s = Rational:new(nil, s, 1)
+    end
+    
+    result.numerator = r.numerator * s.denominator
+    result.denominator = r.denominator * s.numerator
+    
     result = lowest_form(result)
     return result
 end
 
-function Rational:add(R)
+function Rational.__add(r, s)
     local result = Rational:new()
 
-    if type(R) == "number" then
-        R = Rational:new({numerator = R, denominator = 1})
+    if type(r) == "number" then
+        r = Rational:new(nil, r, 1)
     end
-    result.numerator = self.numerator * R.denominator + R.numerator * self.denominator
-    result.denominator = self.denominator * R.denominator
+    if type(s) == "number" then
+        s = Rational:new(nil, s, 1)
+    end
+
+    result.numerator = r.numerator * s.denominator + s.numerator * r.denominator
+    result.denominator = r.denominator * s.denominator
     result = lowest_form(result)
     return result
 end
 
-function Rational:subtract(R)
+function Rational.__sub(r,s)
     local result = Rational:new()
 
-    if type(R) == "number" then
-        R = Rational:new({numerator = R, denominator = 1})
+    if type(r) == "number" then
+        r = Rational:new(nil, r, 1)
     end
-    result.numerator = self.numerator * R.denominator - R.numerator * self.denominator
-    result.denominator = self.denominator * R.denominator
+    if type(s) == "number" then
+        s = Rational:new(nil, s, 1)
+    end
+
+    result.numerator = r.numerator * s.denominator - s.numerator * r.denominator
+    result.denominator = r.denominator * s.denominator
     result = lowest_form(result)
     return result
 end
@@ -98,52 +113,26 @@ function Rational:abs()
 end
 
 function Rational:reciprocal()
-    local result = Rational:new()
-    result.numerator = self.denominator
-    result.denominator = self.numerator
-    return result    
+    return 1/self
 end
 
-function Rational:isequal(R)
-    if type(R) == "number" then
-        R = Rational:new({numerator = R, denominator = 1})
-    end
-    return (self.numerator == R.numerator and self.denominator == R.denominator)
+function Rational.__eq(r,s)
+    return (r.numerator == s.numerator and r.denominator == s.denominator)
 end
 
-function Rational:islessthan(R)
-    if type(R) == "number" then
-        R = Rational:new({numerator = R, denominator = 1})
-    end
-    return (self.numerator * R.denominator < self.denominator * R.numerator)
+function Rational.__lt(r,s)
+    return (r.numerator * s.denominator < r.denominator * s.numerator)
 end
 
-function Rational:isgreaterthan(R)
-    if type(R) == "number" then
-        R = Rational:new({numerator = R, denominator = 1})
-    end
-    return (self.numerator * R.denominator > self.denominator * R.numerator)
+function Rational.__le(r,s)
+    return (r.numerator * s.denominator <= r.denominator * s.numerator)
 end
 
-function Rational:islessthanorequal(R)
-    if type(R) == "number" then
-        R = Rational:new({numerator = R, denominator = 1})
-    end
-    return (self.numerator * R.denominator <= self.denominator * R.numerator)
-end
-
-function Rational:isgreaterthanorequal(R)
-    if type(R) == "number" then
-        R = Rational:new({numerator = R, denominator = 1})
-    end
-    return (self.numerator * R.denominator >= self.denominator * R.numerator)
-end
-
-function Rational:tostring()
-    if self.denominator == 1 then
-        return tostring(self.numerator)
+function Rational.__tostring(r)
+    if r.denominator == 1 then
+        return tostring(r.numerator)
     else
-        return tostring(self.numerator).."/"..tostring(self.denominator)
+        return tostring(r.numerator).."/"..tostring(r.denominator)
     end
 end
 

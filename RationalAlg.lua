@@ -2,7 +2,7 @@ RationalAlg = {}
 
 require "Rational"
 
-function RationalAlg.MatrixToTex(m,xfrac)
+function RationalAlg.MatrixToTeX(m,xfrac)
     xfrac = xfrac or false
     local result = "\\begin{pmatrix}"
         for a = 1, #m do
@@ -24,7 +24,7 @@ function RationalAlg.MatrixToString(m)
         for a = 1, #m do
             result = result .. "( "
             for b = 1, #m[a] do
-                result = result .. m[a][b]:tostring()
+                result = result .. tostring(m[a][b])
                 if b < #m[a] then
                     result = result .. "  "
                 else 
@@ -121,7 +121,7 @@ function RationalAlg.DotProduct(m,n)
     if RationalAlg.EqualSize(m,n) and RationalAlg.GetNumberOfCols(m) == 1 then
         local result = Rational.ZERO()
         for i = 1, RationalAlg.GetNumberOfRows(m) do
-            result = result:add(m[i][1]:multiply(n[i][1]))
+            result = result + m[i][1] * n[i][1]
         end
         return result
     else 
@@ -134,7 +134,7 @@ function RationalAlg.Add(m,n)
     if RationalAlg.EqualSize(m, n) then
         for i = 1, RationalAlg.GetNumberOfRows(m) do
             for j = 1, RationalAlg.GetNumberOfCols(m) do
-                m[i][j] = m[i][j]:add(n[i][j])
+                m[i][j] = m[i][j] + n[i][j]
             end
         end
         return m
@@ -178,15 +178,19 @@ end
 
 function RationalAlg.ROAdd(m, row1, row2)
     for i = 1, RationalAlg.GetNumberOfCols(m) do
-        m[row1][i] = m[row1][i]:add(m[row2][i])
+        m[row1][i] = m[row1][i] + m[row2][i]
     end
     return m
 end
 
 function RationalAlg.ROMult(m, row1, const)
-    if const ~=1 then 
+    if type(const) == "number" then
+        const = Rational:new({numerator = const, denominator = 1})
+    end
+
+    if const ~= Rational.ONE() then
         for i = 1, RationalAlg.GetNumberOfCols(m) do
-            m[row1][i] = m[row1][i]:multiply(const)
+            m[row1][i] = m[row1][i] * const
         end
     end
     return m
@@ -272,15 +276,15 @@ function RationalAlg.GaussianRowReduce(m)
             end
         end
 
-        if v_max:isequal(Rational:ZERO()) then 
+        if v_max == Rational:ZERO() then 
             k = k + 1
         else
             m = RationalAlg.ROSwap(m,h, i_max)
             for i = h + 1, RationalAlg.GetNumberOfRows(m) do
-                local f = m[i][k]:divide(m[h][k])
+                local f = m[i][k] / m[h][k]
                 m[i][k] = Rational:ZERO()
                 for j = k + 1, RationalAlg.GetNumberOfCols(m) do
-                    m[i][j] = m[i][j]:subtract(m[h][j]:multiply(f))
+                    m[i][j] = m[i][j] - m[h][j] * f
                 end
             end
             h = h + 1
@@ -302,26 +306,26 @@ function RationalAlg.GaussJordanRowReduce(mat)
         local indx = 0
         local val = Rational:ZERO()
         for i = h, RationalAlg.GetNumberOfRows(m) do
-            if not m[i][k]:isequal(Rational:ZERO()) then
+            if m[i][k] ~= Rational:ZERO() then
                 indx = i
                 val = m[i][k]
                 break
             end
         end
 
-        if val:isequal(Rational:ZERO()) then
+        if val == Rational:ZERO() then
             k = k + 1
         else
             if indx ~= h then
                 m = RationalAlg.ROSwap(m,h, indx)
                 table.insert(result, {"R_" .. h .. " ↔︎ R_" .. indx, RationalAlg.CopyMatrix(m)})
             end
-            if not val:isequal(Rational:ONE()) then
+            if val ~= Rational:ONE() then
                 m = RationalAlg.ROMult(m,h, val:reciprocal())
-                if val:isgreaterthan(Rational:ZERO()) then
-                    table.insert(result, {"R_" .. h .. " ← " .. val:reciprocal():tostring() .." R_" .. h, RationalAlg.CopyMatrix(m)})
+                if val > Rational:ZERO() then
+                    table.insert(result, {"R_" .. h .. " ← " .. tostring(val:reciprocal()) .." R_" .. h, RationalAlg.CopyMatrix(m)})
                 else
-                    table.insert(result, {"R_" .. h .. " ← -" .. val:abs():reciprocal():tostring() .." R_" .. h, RationalAlg.CopyMatrix(m)})
+                    table.insert(result, {"R_" .. h .. " ← -" .. tostring(val:abs():reciprocal()) .." R_" .. h, RationalAlg.CopyMatrix(m)})
                 end
             end
             m[h][k] = Rational:ONE()
@@ -331,12 +335,12 @@ function RationalAlg.GaussJordanRowReduce(mat)
                     local mult = m[i][k]
                     m[i][k] = Rational:ZERO()
                     for j = k + 1, RationalAlg.GetNumberOfCols(m) do
-                        m[i][j] = m[i][j]:subtract(m[h][j]:multiply(mult))
+                        m[i][j] = m[i][j] - m[h][j] * mult
                     end
-                    if mult:isgreaterthan(Rational:ZERO()) then
-                        table.insert(result, {"R_".. i .. " ← R_" .. i .. " - " .. mult:tostring() .. " R_" .. h, RationalAlg.CopyMatrix(m)})
+                    if mult > Rational:ZERO() then
+                        table.insert(result, {"R_".. i .. " ← R_" .. i .. " - " .. tostring(mult) .. " R_" .. h, RationalAlg.CopyMatrix(m)})
                     else
-                        table.insert(result, {"R_".. i .. " ← R_" .. i .. " + " .. mult:abs():tostring() .. " R_" .. h, RationalAlg.CopyMatrix(m)})
+                        table.insert(result, {"R_".. i .. " ← R_" .. i .. " + " .. tostring(mult:abs()) .. " R_" .. h, RationalAlg.CopyMatrix(m)})
                     end
                 end
             end
@@ -360,10 +364,10 @@ function RationalAlg.RowOpListToTeX(result, cols, xfrac)
     cols = cols or 2
     xfrac = xfrac or false
     local str = "\\begin{alignat*}{"..(2*cols-1).."}"
-    str = str .. "&"..RationalAlg.MatrixToTex(result[1][2],xfrac)
+    str = str .. "&"..RationalAlg.MatrixToTeX(result[1][2],xfrac)
     for i = 2, #result do
         local rop = string.gsub(result[i][1],"←","\\leftarrow")
-        local mat = RationalAlg.MatrixToTex(result[i][2],xfrac)
+        local mat = RationalAlg.MatrixToTeX(result[i][2],xfrac)
         if i % cols == 1 then
             str = str .. "\\\\\\xrightarrow{\\mbox{\\small $".. rop .. "$}}&" .. mat
         else

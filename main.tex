@@ -1,6 +1,7 @@
 \documentclass[11pt]{article}
 \usepackage{amsfonts,amsmath,amsthm}
 \usepackage{xfrac}
+
 \title{Using Lua\LaTeX\ for Linear Algebra}
 \author{Matthew Jones}
 \date{\today}
@@ -57,7 +58,7 @@
     {Rational:new(nil,-9),Rational:new(nil,13),Rational:new(nil,23),Rational:new(nil,-24)}
     }
 
-    tex.print("\\[A = "..RationalAlg.MatrixToTex(M,true).."\\]")
+    tex.print("\\[A = "..RationalAlg.MatrixToTeX(M,true).."\\]")
 
     A, R = RationalAlg.GaussJordanRowReduce(M)
     
@@ -75,7 +76,7 @@
     {Rational:new(nil,-9),Rational:new(nil,13),Rational:new(nil,23),Rational:new(nil,-24)}
     }
 
-    tex.print("\\[A = "..RationalAlg.MatrixToTex(M,true).."\\]")
+    tex.print("\\[A = "..RationalAlg.MatrixToTeX(M,true).."\\]")
 
     A, R = RationalAlg.GaussJordanRowReduce(M)
 
@@ -95,23 +96,23 @@
 }
 To find the inverse of the matrix
 \directlua{
-    tex.print("\\[A = "..RationalAlg.MatrixToTex(M,true).."\\]")
+    tex.print("\\[A = "..RationalAlg.MatrixToTeX(M,true).."\\]")
 }
 First we define the augmented matrix by including a 3x3 identity matrix,
 \directlua{
     MA = RationalAlg.Augment(M, RationalAlg.IdentityMatrix(3))
-    tex.print("\\["..RationalAlg.MatrixToTex(MA,true).."\\]")
+    tex.print("\\["..RationalAlg.MatrixToTeX(MA,true).."\\]")
 }
 We then row reduce this matrix using Gauss-Jordan
 \directlua{
     A, R = RationalAlg.GaussJordanRowReduce(MA)
-    tex.print(RationalAlg.RowOpListToTeX(R,2,true))
+    tex.print(RationalAlg.RowOpListToTeX(R,2,true)) 
 }
 
 It follows that the inverse is given by,
 \directlua{
     l, r = RationalAlg.Split(A, 3)
-    tex.print("\\[ A^{-1} = " .. RationalAlg.MatrixToTex(r,true) .. "\\]")
+    tex.print("\\[ A^{-1} = " .. RationalAlg.MatrixToTeX(r,true) .. "\\]")
 }
 \end{lstlisting}
 
@@ -125,14 +126,14 @@ It follows that the inverse is given by,
 
 To find the inverse of the matrix
 \directlua{
-    tex.print("\\[A = "..RationalAlg.MatrixToTex(M,true).."\\]")
+    tex.print("\\[A = "..RationalAlg.MatrixToTeX(M,true).."\\]")
 }
 
 First we define the augmented matrix by including a 3x3 identity matrix,
 
 \directlua{
     MA = RationalAlg.Augment(M, RationalAlg.IdentityMatrix(3))
-    tex.print("\\["..RationalAlg.MatrixToTex(MA,true).."\\]")
+    tex.print("\\["..RationalAlg.MatrixToTeX(MA,true).."\\]")
 }
 
 We then row reduce this matrix using Gauss-Jordan
@@ -146,7 +147,7 @@ It follows that the inverse is given by
 
 \directlua{
     l, r = RationalAlg.Split(A, 3)
-    tex.print("\\[ A^{-1} = " .. RationalAlg.MatrixToTex(r,true) .. "\\]")
+    tex.print("\\[ A^{-1} = " .. RationalAlg.MatrixToTeX(r,true) .. "\\]")
 }
 
 \pagebreak
@@ -156,7 +157,7 @@ It follows that the inverse is given by
     \directlua{
         M = RationalAlg.RandomMatrix(3,4,true) 
         tex.print(
-            "\\[ A = " .. RationalAlg.MatrixToTex(M) .. "\\]"
+            "\\[ A = " .. RationalAlg.MatrixToTeX(M) .. "\\]"
         )
         _, R = RationalAlg.GaussJordanRowReduce(M)
         tex.print(RationalAlg.RowOpListToTeX(R,2,true))
@@ -164,11 +165,12 @@ It follows that the inverse is given by
 \end{lstlisting}
 
 \directlua{
-    M = RationalAlg.RandomMatrix(3,4,true) 
+    M = RationalAlg.RandomMatrix(3,4,true)
     tex.print(
-        "\\[ A = " .. RationalAlg.MatrixToTex(M) .. "\\]"
+        "\\[ A = " .. RationalAlg.MatrixToTeX(M) .. "\\]"
     )
     _, R = RationalAlg.GaussJordanRowReduce(M)
     tex.print(RationalAlg.RowOpListToTeX(R,2,true))
 }
+ 
 \end{document}
