@@ -154,14 +154,14 @@ It follows that the inverse is given by
 \section*{Random matrices}
 
 \begin{lstlisting}
-    \directlua{
-        M = RationalAlg.RandomMatrix(3,4,true) 
-        tex.print(
-            "\\[ A = " .. RationalAlg.MatrixToTeX(M) .. "\\]"
-        )
-        _, R = RationalAlg.GaussJordanRowReduce(M)
-        tex.print(RationalAlg.RowOpListToTeX(R,2,true))
-    }
+\directlua{
+    M = RationalAlg.RandomMatrix(3,4,true) 
+    tex.print(
+        "\\[ A = " .. RationalAlg.MatrixToTeX(M) .. "\\]"
+    )
+    _, R = RationalAlg.GaussJordanRowReduce(M)
+    tex.print(RationalAlg.RowOpListToTeX(R,2,true))
+}
 \end{lstlisting}
 
 \directlua{
@@ -172,5 +172,44 @@ It follows that the inverse is given by
     _, R = RationalAlg.GaussJordanRowReduce(M)
     tex.print(RationalAlg.RowOpListToTeX(R,2,true))
 }
- 
+
+\section*{Surds}
+We can also use surds and complex numbers.
+
+\begin{lstlisting}
+\directlua{
+    require "Surd"
+    z = Surd:new(nil, 2, 3, -1)
+    w = Surd:new(nil, Rational:new(nil, 2, 3), Rational:new(nil, 1, 3), -1)
+    tex.print("\\[ z = " .. z:totexstring(false) .. ", \\qquad w = " .. w:totexstring(false) .. "\\]")
+}
+\end{lstlisting}
+
+\directlua{
+    require "Surd"
+    z = Surd:new(nil, 2, 3, -1)
+    w = Surd:new(nil, Rational:new(nil, 2, 3), Rational:new(nil, 1, 3), -1)
+    tex.print("\\[ z = " .. z:totexstring(false) .. ", \\qquad w = " .. w:totexstring(false) .. "\\]")
+}
+\begin{itemize}
+    \item \directlua{tex.print("\\(\\displaystyle z + w = " .. (z+w):totexstring(false).. "\\)")}
+    \item \directlua{tex.print("\\(\\displaystyle z - w = " .. (z-w):totexstring(false).. "\\)")}
+    \item \directlua{tex.print("\\(\\displaystyle z w = " .. (z*w):totexstring(false).. "\\)")}
+    \item \directlua{tex.print("\\(\\displaystyle z / w = " .. (z/w):totexstring(false).. "\\)")}
+\end{itemize}
+
+The Surd library will automatically ensure the `base' is square-free. For example the following code
+
+\begin{lstlisting}
+\directlua{
+    a = Surd:new(nil, 2, 5, -12)
+    tex.print("\\[ a = " .. a:totexstring() .. "\\]")
+}    
+\end{lstlisting}
+produces the output: 
+\directlua{
+    a = Surd:new(nil, 2, 5, -12)
+    tex.print("\\[ a = " .. a:totexstring() .. "\\]")
+}
+
 \end{document}

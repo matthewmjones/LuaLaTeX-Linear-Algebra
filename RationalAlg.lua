@@ -144,6 +144,20 @@ function RationalAlg.Add(m,n)
     end
 end
 
+function RationalAlg.Subtract(m,n)
+    if RationalAlg.EqualSize(m, n) then
+        for i = 1, RationalAlg.GetNumberOfRows(m) do
+            for j = 1, RationalAlg.GetNumberOfCols(m) do
+                m[i][j] = m[i][j] - n[i][j]
+            end
+        end
+        return m
+    else 
+        print("Error: attempting to add two different sized matrices")
+        return m
+    end
+end
+
 function RationalAlg.Multiply(m,n)
     if RationalAlg.GetNumberOfCols(m) == RationalAlg.GetNumberOfRows(n) then
         local result = RationalAlg.ZeroMatrix(RationalAlg.GetNumberOfRows(m), RationalAlg.GetNumberOfCols(n))
@@ -160,6 +174,18 @@ function RationalAlg.Multiply(m,n)
         print("Error: attempting to multiply two incompatible matrices")
         return m
     end
+end
+
+function RationalAlg.Transpose(m)
+    local tr = RationalAlg.RandomMatrix(
+        RationalAlg.GetNumberOfCols(m), RationalAlg.GetNumberOfRows(m)
+    )
+    for i = 1, RationalAlg.GetNumberOfCols(m) do
+        for j = 1, RationalAlg.GetNumberOfRows(m) do
+            tr[i][j] = m[j][i]
+        end
+    end
+    return tr
 end
 
 function RationalAlg.IsSquare(m)
@@ -339,7 +365,7 @@ function RationalAlg.GaussJordanRowReduce(mat)
                     end
                     if mult > Rational:ZERO() then
                         table.insert(result, {"R_".. i .. " ← R_" .. i .. " - " .. tostring(mult) .. " R_" .. h, RationalAlg.CopyMatrix(m)})
-                    else
+                    elseif mult < Rational:ZERO() then
                         table.insert(result, {"R_".. i .. " ← R_" .. i .. " + " .. tostring(mult:abs()) .. " R_" .. h, RationalAlg.CopyMatrix(m)})
                     end
                 end
