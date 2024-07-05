@@ -159,8 +159,11 @@ function RationalAlg.Subtract(m,n)
 end
 
 function RationalAlg.Multiply(m,n)
-    if RationalAlg.GetNumberOfCols(m) == RationalAlg.GetNumberOfRows(n) then
-        local result = RationalAlg.ZeroMatrix(RationalAlg.GetNumberOfRows(m), RationalAlg.GetNumberOfCols(n))
+    if RationalAlg.GetNumberOfCols(m) ~= RationalAlg.GetNumberOfRows(n) then
+        print("Error: attempting to multiply two incompatible matrices")
+        return m
+    end
+    local result = RationalAlg.ZeroMatrix(RationalAlg.GetNumberOfRows(m), RationalAlg.GetNumberOfCols(n))
         for i = 1, RationalAlg.GetNumberOfRows(m) do
             for j = 1, RationalAlg.GetNumberOfCols(n) do
                 result[i][j] = RationalAlg.DotProduct(
@@ -169,11 +172,20 @@ function RationalAlg.Multiply(m,n)
                 )
             end
         end
-        return result
-    else
-        print("Error: attempting to multiply two incompatible matrices")
-        return m
+    return result
+end
+
+function RationalAlg.MultiplyByScalar(m,s)
+    if type(s) == "number" then
+        s = Rational:new(nil, s)
     end
+    local result = RationalAlg.ZeroMatrix(RationalAlg.GetNumberOfRows(m), RationalAlg.GetNumberOfCols(m))
+        for i = 1, RationalAlg.GetNumberOfRows(m) do
+            for j = 1, RationalAlg.GetNumberOfCols(m) do
+                result[i][j] = s * m[i][j]
+            end
+        end
+    return result
 end
 
 function RationalAlg.Transpose(m)

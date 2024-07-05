@@ -48,38 +48,38 @@
 \section*{Example: elementary Gauss-Jordan}
 
 \begin{lstlisting}
+\[ A = 
 \directlua{
-    require "RationalAlg"
     
-    M = {
+M = {
     {Rational:new(nil, 4), Rational:new(nil,12),Rational:new(nil,4),Rational:new(nil,0)},
     {Rational:new(nil, 6), Rational:new(nil,3),Rational:new(nil,-6),Rational:new(nil,9)},
     {Rational:new(nil,6),Rational:new(nil,-7),Rational:new(nil,-14),Rational:new(nil,15)},
     {Rational:new(nil,-9),Rational:new(nil,13),Rational:new(nil,23),Rational:new(nil,-24)}
     }
-
-    tex.print("\\[A = "..RationalAlg.MatrixToTeX(M,true).."\\]")
-
+    tex.print(RationalAlg.MatrixToTeX(M,true))}
+\]
+\directlua{
     A, R = RationalAlg.GaussJordanRowReduce(M)
-    
     tex.print(RationalAlg.RowOpListToTeX(R,2,true))
-}    
+}
 \end{lstlisting}
 
+\directlua{require "RationalAlg"}
+
+\[ A = 
 \directlua{
-    require "RationalAlg"
     
-    M = {
+M = {
     {Rational:new(nil, 4), Rational:new(nil,12),Rational:new(nil,4),Rational:new(nil,0)},
     {Rational:new(nil, 6), Rational:new(nil,3),Rational:new(nil,-6),Rational:new(nil,9)},
     {Rational:new(nil,6),Rational:new(nil,-7),Rational:new(nil,-14),Rational:new(nil,15)},
     {Rational:new(nil,-9),Rational:new(nil,13),Rational:new(nil,23),Rational:new(nil,-24)}
     }
-
-    tex.print("\\[A = "..RationalAlg.MatrixToTeX(M,true).."\\]")
-
+    tex.print(RationalAlg.MatrixToTeX(M,true))}
+\]
+\directlua{
     A, R = RationalAlg.GaussJordanRowReduce(M)
-
     tex.print(RationalAlg.RowOpListToTeX(R,2,true))
 }
 
@@ -87,68 +87,52 @@
 \section*{Example: finding an inverse using Gauss-Jordan}
 
 \begin{lstlisting}
-\directlua{
-    M = {
-        {Rational:new(nil,2), Rational:new(nil,3), Rational:new(nil,-2)},
-        {Rational:new(nil,1), Rational:new(nil,0), Rational:new(nil,4)},
-        {Rational:new(nil,5), Rational:new(nil,2), Rational:new(nil,3)}    
-    }
-}
-To find the inverse of the matrix
-\directlua{
-    tex.print("\\[A = "..RationalAlg.MatrixToTeX(M,true).."\\]")
-}
-First we define the augmented matrix by including a 3x3 identity matrix,
-\directlua{
-    MA = RationalAlg.Augment(M, RationalAlg.IdentityMatrix(3))
-    tex.print("\\["..RationalAlg.MatrixToTeX(MA,true).."\\]")
-}
-We then row reduce this matrix using Gauss-Jordan
-\directlua{
-    A, R = RationalAlg.GaussJordanRowReduce(MA)
-    tex.print(RationalAlg.RowOpListToTeX(R,2,true)) 
-}
-
-It follows that the inverse is given by,
-\directlua{
-    l, r = RationalAlg.Split(A, 3)
-    tex.print("\\[ A^{-1} = " .. RationalAlg.MatrixToTeX(r,true) .. "\\]")
+M = {
+    {Rational:new(nil,2), Rational:new(nil,3), Rational:new(nil,-2)},
+    {Rational:new(nil,1), Rational:new(nil,0), Rational:new(nil,4)},
+    {Rational:new(nil,5), Rational:new(nil,2), Rational:new(nil,3)}    
 }
 \end{lstlisting}
-
 \directlua{
-    M = {
-        {Rational:new(nil,2), Rational:new(nil,3), Rational:new(nil,-2)},
-        {Rational:new(nil,1), Rational:new(nil,0), Rational:new(nil,4)},
-        {Rational:new(nil,5), Rational:new(nil,2), Rational:new(nil,3)}    
-    }
+M = {
+    {Rational:new(nil,2), Rational:new(nil,3), Rational:new(nil,-2)},
+    {Rational:new(nil,1), Rational:new(nil,0), Rational:new(nil,4)},
+    {Rational:new(nil,5), Rational:new(nil,2), Rational:new(nil,3)}    
 }
-
+}
 To find the inverse of the matrix
-\directlua{
-    tex.print("\\[A = "..RationalAlg.MatrixToTeX(M,true).."\\]")
-}
+\begin{lstlisting}
+\[ A = \directlua{tex.print(RationalAlg.MatrixToTeX(M))}\]   
+\end{lstlisting}
+\[ A = \directlua{tex.print(RationalAlg.MatrixToTeX(M))}\]
 
 First we define the augmented matrix by including a 3x3 identity matrix,
-
-\directlua{
-    MA = RationalAlg.Augment(M, RationalAlg.IdentityMatrix(3))
-    tex.print("\\["..RationalAlg.MatrixToTeX(MA,true).."\\]")
-}
-
+\begin{lstlisting}
+\directlua{MA = RationalAlg.Augment(M, RationalAlg.IdentityMatrix(3))}
+\[\directlua{tex.print(RationalAlg.MatrixToTeX(MA,true))}\]
+\end{lstlisting}
+\directlua{MA = RationalAlg.Augment(M, RationalAlg.IdentityMatrix(3))}
+\[\directlua{tex.print(RationalAlg.MatrixToTeX(MA,true))}\]
 We then row reduce this matrix using Gauss-Jordan
 
+\begin{lstlisting}
+\directlua{
+    _, R = RationalAlg.GaussJordanRowReduce(MA)
+    tex.print(RationalAlg.RowOpListToTeX(R,2,true))
+}
+\end{lstlisting}
 \directlua{
     A, R = RationalAlg.GaussJordanRowReduce(MA)
     tex.print(RationalAlg.RowOpListToTeX(R,2,true))
 }
 
 It follows that the inverse is given by
-
-\directlua{
-    l, r = RationalAlg.Split(A, 3)
-    tex.print("\\[ A^{-1} = " .. RationalAlg.MatrixToTeX(r,true) .. "\\]")
-}
+\begin{lstlisting}
+\directlua{l, r = RationalAlg.Split(A, 3)}
+\[ A^{-1} = \directlua{tex.print(RationalAlg.MatrixToTeX(r,true))}\]   
+\end{lstlisting}
+\directlua{l, r = RationalAlg.Split(A, 3)}
+\[ A^{-1} = \directlua{tex.print(RationalAlg.MatrixToTeX(r,true))}\]
 
 \pagebreak
 \section*{Random matrices}
