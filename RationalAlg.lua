@@ -132,12 +132,13 @@ end
 
 function RationalAlg.Add(m,n)
     if RationalAlg.EqualSize(m, n) then
+        local a = RationalAlg.CopyMatrix(m)
         for i = 1, RationalAlg.GetNumberOfRows(m) do
             for j = 1, RationalAlg.GetNumberOfCols(m) do
-                m[i][j] = m[i][j] + n[i][j]
+                a[i][j] = m[i][j] + n[i][j]
             end
         end
-        return m
+        return a
     else 
         print("Error: attempting to add two different sized matrices")
         return m
@@ -206,32 +207,47 @@ end
 
 -- Row operations will all start with RO
 function RationalAlg.ROSwap(m, row1, row2)
+    local a = RationalAlg.CopyMatrix(m)
     if row1 ~= row2 then
-        local row = m[row1]
-        m[row1] = m[row2]
-        m[row2] = row
+        local row = a[row1]
+        a[row1] = a[row2]
+        a[row2] = row
     end
-    return m
+    return a
 end
 
 function RationalAlg.ROAdd(m, row1, row2)
+    local a = RationalAlg.CopyMatrix(m)
     for i = 1, RationalAlg.GetNumberOfCols(m) do
-        m[row1][i] = m[row1][i] + m[row2][i]
+        a[row1][i] = a[row1][i] + a[row2][i]
     end
-    return m
+    return a
 end
 
 function RationalAlg.ROMult(m, row1, const)
+    local a = RationalAlg.CopyMatrix(m)
     if type(const) == "number" then
         const = Rational:new({numerator = const, denominator = 1})
     end
 
     if const ~= Rational.ONE() then
         for i = 1, RationalAlg.GetNumberOfCols(m) do
-            m[row1][i] = m[row1][i] * const
+            a[row1][i] = a[row1][i] * const
         end
     end
-    return m
+    return a
+end
+
+function RationalAlg.ROMultAndAdd(m,row1, row2, const)
+    local a = RationalAlg.CopyMatrix(m)
+    if type(const) == "number" then
+        const = Rational:new({numerator = const, denominator = 1})
+    end
+
+    for i = 1, RationalAlg.GetNumberOfCols(a) do
+        a[row1][i] = a[row1][i] + a[row2][i] * const
+    end
+    return a
 end
 
 function RationalAlg.CopyMatrix(t)
