@@ -35,6 +35,80 @@ function RationalAlg.MatrixToString(m)
     return result
 end
 
+function RationalAlg.StringToMatrix(str)
+    -- Remove whitespace and validate basic structure
+    str = str:gsub("%s+", "")
+    if not str:match("^{.*}$") then
+        print("Error: Invalid matrix format. Must be enclosed in curly braces")
+        return nil
+    end
+    
+    -- Remove outer braces
+    str = str:sub(2, -2)
+    
+    local matrix = {}
+    local row = 1
+    local currentRow = {}
+    
+    -- Process the string character by character
+    local i = 1
+    while i <= #str do
+        if str:sub(i,i) == "{" then
+            currentRow = {}
+            i = i + 1
+            local numStr = ""
+            
+            while i <= #str and str:sub(i,i) ~= "}" do
+                local char = str:sub(i,i)
+                if char == "," then
+                    -- Convert the accumulated number string to Rational
+                    if numStr ~= "" then
+                        local num, denom = 1, 1
+                        if numStr:find("/") then
+                            -- Ensure we convert to integers for LuaTeX
+                            local numPart = numStr:match("(.+)/")
+                            local denomPart = numStr:match("/(.+)")
+                            num = math.floor(tonumber(numPart) or 1)
+                            denom = math.floor(tonumber(denomPart) or 1)
+                        else
+                            num = math.floor(tonumber(numStr) or 1)
+                            denom = 1
+                        end
+                        table.insert(currentRow, Rational:new(nil, num, denom))
+                        numStr = ""
+                    end
+                else
+                    numStr = numStr .. char
+                end
+                i = i + 1
+            end
+            
+            -- Handle the last number in the row
+            if numStr ~= "" then
+                local num, denom = 1, 1
+                if numStr:find("/") then
+                    -- Ensure we convert to integers for LuaTeX
+                    local numPart = numStr:match("(.+)/")
+                    local denomPart = numStr:match("/(.+)")
+                    num = math.floor(tonumber(numPart) or 1)
+                    denom = math.floor(tonumber(denomPart) or 1)
+                else
+                    num = math.floor(tonumber(numStr) or 1)
+                    denom = 1
+                end
+                table.insert(currentRow, Rational:new(nil, num, denom))
+            end
+            
+            matrix[row] = currentRow
+            row = row + 1
+        end
+        i = i + 1
+    end
+    
+    return matrix
+end
+
+
 function RationalAlg.RandomMatrix(rows, cols, integer)
     integer = integer or false
     local M = {}
