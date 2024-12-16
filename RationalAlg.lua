@@ -420,7 +420,10 @@ function RationalAlg.RowOpListToTeX(result, cols, xfrac)
     local str = "\\begin{alignat*}{"..(2*cols-1).."}"
     str = str .. "&"..RationalAlg.MatrixToTeX(result[1][2],xfrac)
     for i = 2, #result do
-        local rop = string.gsub(result[i][1],"←","\\leftarrow")
+    local rop = string.gsub(
+        string.gsub(result[i][1], "←", "\\leftarrow"),
+        "↔︎", "\\longleftrightarrow"
+    )
         local mat = RationalAlg.MatrixToTeX(result[i][2],xfrac)
         if i % cols == 1 then
             str = str .. "\\\\\\xrightarrow{\\mbox{\\small $".. rop .. "$}}&" .. mat
