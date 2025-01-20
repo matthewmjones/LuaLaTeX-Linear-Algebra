@@ -20,18 +20,21 @@ function RationalAlg.MatrixToTeX(m,xfrac)
 end
 
 function RationalAlg.MatrixToString(m)
-    local result = ""
-        for a = 1, #m do
-            result = result .. "( "
-            for b = 1, #m[a] do
-                result = result .. tostring(m[a][b])
-                if b < #m[a] then
-                    result = result .. "  "
-                else 
-                    result = result .. " )\n"
-                end
+    local result = "{ "
+    for i = 1, #m do
+        result = result .. "{"
+        for j = 1, #m[i] do
+            result = result .. tostring(m[i][j])
+            if j < #m[i] then
+                result = result .. ","
             end
         end
+        result = result .. "}"
+        if i < #m then
+            result = result .. ","
+        end
+    end
+    result = result .. " }"
     return result
 end
 
@@ -354,6 +357,32 @@ function RationalAlg.IsSquare(m)
     return (RationalAlg.GetNumberOfRows(m) == RationalAlg.GetNumberOfCols(m))
 end
 
+function RationalAlg.Inverse(m) 
+    if not RationalAlg.IsSquare(m) then
+        if tex then
+            tex.error("Error: (Inverse) Unable to find inverses of non-square matrices")
+        else 
+            error("Error: (Multiply) Unable to find inverses of non-square matrices")
+        end
+    end
+    
+    -- n is the size of the square matrix
+    local n = #m
+    -- augment matrix and identity
+    local aug = RationalAlg.Augment(m, RationalAlg.IdentityMatrix(n))
+
+    -- Perform a full Gauss-Jordan
+    M = RationalAlg.GaussJordanRowReduce(aug)
+    local l, r = RationalAlg.Split(M, n)
+    local Rank = RationalAlg.isRREF(l)
+    if Rank < n then 
+        return false
+    else 
+        return r
+    end
+end
+
+
 -- Row operations will all start with RO
 function RationalAlg.ROSwap(m, row1, row2)
     local a = RationalAlg.CopyMatrix(m)
@@ -466,38 +495,54 @@ function RationalAlg.Split(m, c)
     end
 end
 
-function RationalAlg.GaussianRowReduce(m)
-    local result = {}
-    -- the result will be a table {row operation = matrix }
-    local h = 1
-    local k = 1
-
-    while (h <= RationalAlg.GetNumberOfRows(m)) and (k <= RationalAlg.GetNumberOfCols(m)) do
-        local i_max = 0
-        local v_max = Rational:ZERO()
-        for i = h, RationalAlg.GetNumberOfRows(m) do
-            if m[i][k]:abs():isgreaterthan(v_max) then
-                i_max = i
-                v_max = m[i][k]:abs()
+function RationalAlg.isRREF(matrix)
+    local rank = 0
+    local leadingColumn = 0
+    
+    for i = 1, #matrix do
+        local row = matrix[i]
+        local foundLeadingOne = false
+        
+        for j = 1, #row do
+            if row[j] == Rational.ONE() then
+                -- Check if the leading 1 satisfies RREF conditions
+                if j <= leadingColumn then
+                    return false -- Leading 1 not to the right of the previous leading 1
+                end
+                
+                -- Check if the column of the leading 1 is zero elsewhere
+                for k = 1, #matrix do
+                    if k ~= i and matrix[k][j] ~= Rational.ZERO() then
+                        return false -- Non-zero value in the column of leading 1
+                    end
+                end
+                
+                leadingColumn = j
+                foundLeadingOne = true
+                rank = rank + 1
+                break
+            elseif row[j] ~= Rational.ZERO() then
+                return false -- Non-zero value before leading 1
             end
         end
-
-        if v_max == Rational:ZERO() then 
-            k = k + 1
-        else
-            m = RationalAlg.ROSwap(m,h, i_max)
-            for i = h + 1, RationalAlg.GetNumberOfRows(m) do
-                local f = m[i][k] / m[h][k]
-                m[i][k] = Rational:ZERO()
-                for j = k + 1, RationalAlg.GetNumberOfCols(m) do
-                    m[i][j] = m[i][j] - m[h][j] * f
-                end
-            end
-            h = h + 1
-            k = k + 1
+        
+        -- If the row has non-zero values but no leading 1, it's invalid
+        if not foundLeadingOne and not isZeroRow(row) then
+            return false
         end
     end
-    return m
+    
+    return rank
+end
+
+-- Helper function to check if a row is all zeros
+function isZeroRow(row)
+    for _, value in ipairs(row) do
+        if value ~= Rational.ZERO() then
+            return false
+        end
+    end
+    return true
 end
 
 function RationalAlg.GaussJordanRowReduce(mat)
@@ -555,7 +600,7 @@ function RationalAlg.GaussJordanRowReduce(mat)
             k = k + 1
         end
     end
-    return m, result
+    return m, result, RationalAlg.isRREF(m)
 end
 
 function RationalAlg.RowOpListToString(r)
