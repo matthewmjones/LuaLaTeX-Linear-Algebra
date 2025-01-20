@@ -39,7 +39,11 @@ function RationalAlg.StringToMatrix(str)
     -- Remove whitespace and validate basic structure
     str = str:gsub("%s+", "")
     if not str:match("^{.*}$") then
-        print("Error: Invalid matrix format. Must be enclosed in curly braces")
+        if tex then
+            tex.error("Error: Invalid matrix format. Must be enclosed in curly braces")
+        else 
+            error("Error: Invalid matrix format. Must be enclosed in curly braces")
+        end        
         return nil
     end
     
@@ -110,6 +114,15 @@ end
 
 
 function RationalAlg.RandomMatrix(rows, cols, integer)
+
+    if rows <=0 or cols <= 0 then
+        if tex then
+            tex.error("Error: (RandomMatrix) Attempting to create a matrix with non-positive numbers of rows or columns")
+        else 
+            error("Error: (RandomMatrix) Attempting to create a matrix with non-positive numbers of rows or columns")
+        end
+    end
+
     integer = integer or false
     local M = {}
     for a = 1, rows do
@@ -117,10 +130,10 @@ function RationalAlg.RandomMatrix(rows, cols, integer)
         for b = 1, cols do
             if integer then
                 M[a][b] = Rational:new({
-                    numerator = math.random(-5,5),1})
+                    numerator = math.random(-3,5),1})
             else
                 M[a][b] = Rational:new({
-                    numerator = math.random(-5,5),
+                    numerator = math.random(-3,5),
                     denominator = math.random(1,10)})
             end            
         end
@@ -129,6 +142,15 @@ function RationalAlg.RandomMatrix(rows, cols, integer)
 end
 
 function RationalAlg.ZeroMatrix(rows, cols)
+
+    if rows <=0 or cols <= 0 then
+        if tex then
+            tex.error("Error: (ZeroMatrix) Attempting to create a matrix with non-positive numbers of rows or columns")
+        else 
+            error("Error: (ZeroMatrix) Attempting to create a matrix with non-positive numbers of rows or columns")
+        end
+    end
+
     local M = {}
     for a = 1, rows do
         M[a] = {}
@@ -140,6 +162,15 @@ function RationalAlg.ZeroMatrix(rows, cols)
 end
 
 function RationalAlg.IdentityMatrix(n)
+
+    if n <=0  then
+        if tex then
+            tex.error("Error: (IdentityMatrix) Attempting to create a matrix with non-positive numbers of rows or columns")
+        else 
+            error("Error: (IdentityMatrix) Attempting to create a matrix with non-positive numbers of rows or columns")
+        end
+    end
+
     local M = {}
     for a = 1, n do
         M[a] = {}
@@ -174,12 +205,44 @@ function RationalAlg.GetColumn(m, col1)
     return col
 end
 
+function RationalAlg.SetColumn(m, col1, newcolumn)
+    -- check size of matrix includes column
+    if RationalAlg.GetNumberOfCols(m) < col1 or RationalAlg.GetNumberOfRows(m) ~= RationalAlg.GetNumberOfRows(newcolumn) then
+        if tex then
+            tex.error("Error: (SetColumn) Incompatible sizes")
+        else 
+            error("Error: (SetColumn) Incompatible sizes")
+        end
+    end
+
+    for i = 1, RationalAlg.GetNumberOfRows(m) do
+        m[i][col1] = newcolumn[i][1]
+    end
+    return m
+end
+
 function RationalAlg.GetRow(m, row1)
     local row = RationalAlg.ZeroMatrix(RationalAlg.GetNumberOfCols(m), 1)
     for i = 1, RationalAlg.GetNumberOfCols(m) do
         row[i][1] = m[row1][i]
     end
     return row
+end
+
+function RationalAlg.SetRow(m, row1, newrow)
+    -- check size of matrix includes row
+    if RationalAlg.GetNumberOfRows(m) < row1 or RationalAlg.GetNumberOfCols(m) ~= RationalAlg.GetNumberOfCols(newrow) then
+        if tex then
+            tex.error("Error: (SetRow) Incompatible sizes")
+        else 
+            error("Error: (SetRow) Incompatible sizes")
+        end
+    end
+
+    for i = 1, RationalAlg.GetNumberOfCols(m) do
+        m[row1][i] = newrow[1][i]
+    end
+    return m
 end
 
 -- converts a columns vector to an array for easier processing
@@ -192,52 +255,64 @@ function RationalAlg.ToArray(m)
 end
 
 function RationalAlg.DotProduct(m,n)
-    if RationalAlg.EqualSize(m,n) and RationalAlg.GetNumberOfCols(m) == 1 then
-        local result = Rational.ZERO()
-        for i = 1, RationalAlg.GetNumberOfRows(m) do
-            result = result + m[i][1] * n[i][1]
+    if  not RationalAlg.EqualSize(m,n) or RationalAlg.GetNumberOfCols(m) > 1 then
+        if tex then
+            tex.error("Error: (DotProduct) Incompatible sizes")
+        else 
+            error("Error: (DotProduct) Incompatible sizes")
         end
-        return result
-    else 
-        print("Error: attempting to find the dot product of different sized matrices")
-        return nil
     end
+
+    local result = Rational.ZERO()
+    for i = 1, RationalAlg.GetNumberOfRows(m) do
+        result = result + m[i][1] * n[i][1]
+    end
+    return result
 end
 
 function RationalAlg.Add(m,n)
-    if RationalAlg.EqualSize(m, n) then
-        local a = RationalAlg.CopyMatrix(m)
-        for i = 1, RationalAlg.GetNumberOfRows(m) do
-            for j = 1, RationalAlg.GetNumberOfCols(m) do
-                a[i][j] = m[i][j] + n[i][j]
-            end
+    if  not RationalAlg.EqualSize(m, n) then
+        if tex then
+            tex.error("Error: (Add) Incompatible sizes")
+        else 
+            error("Error: (Add) Incompatible sizes")
         end
-        return a
-    else 
-        print("Error: attempting to add two different sized matrices")
-        return m
     end
+    local a = RationalAlg.CopyMatrix(m)
+    for i = 1, RationalAlg.GetNumberOfRows(m) do
+        for j = 1, RationalAlg.GetNumberOfCols(m) do
+            a[i][j] = m[i][j] + n[i][j]
+        end
+    end
+    return a
 end
 
 function RationalAlg.Subtract(m,n)
-    if RationalAlg.EqualSize(m, n) then
-        for i = 1, RationalAlg.GetNumberOfRows(m) do
-            for j = 1, RationalAlg.GetNumberOfCols(m) do
-                m[i][j] = m[i][j] - n[i][j]
-            end
+    if not RationalAlg.EqualSize(m, n) then
+        if tex then
+            tex.error("Error: (Add) Incompatible sizes")
+        else 
+            error("Error: (Add) Incompatible sizes")
         end
-        return m
-    else 
-        print("Error: attempting to add two different sized matrices")
-        return m
     end
+
+    for i = 1, RationalAlg.GetNumberOfRows(m) do
+        for j = 1, RationalAlg.GetNumberOfCols(m) do
+            m[i][j] = m[i][j] - n[i][j]
+        end
+    end
+    return m
 end
 
 function RationalAlg.Multiply(m,n)
     if RationalAlg.GetNumberOfCols(m) ~= RationalAlg.GetNumberOfRows(n) then
-        print("Error: attempting to multiply two incompatible matrices")
-        return m
+        if tex then
+            tex.error("Error: (Multiply) Incompatible sizes")
+        else 
+            error("Error: (Multiply) Incompatible sizes")
+        end
     end
+
     local result = RationalAlg.ZeroMatrix(RationalAlg.GetNumberOfRows(m), RationalAlg.GetNumberOfCols(n))
         for i = 1, RationalAlg.GetNumberOfRows(m) do
             for j = 1, RationalAlg.GetNumberOfCols(n) do
@@ -336,8 +411,11 @@ end
 
 function RationalAlg.Augment(m, n)
     if RationalAlg.GetNumberOfRows(m) ~= RationalAlg.GetNumberOfRows(n) then
-        print("Error: cannot produce augmented matrix")
-        return
+        if tex then
+            tex.error("Error: (Augment) Attempting to augment two incompatible matrices")
+        else 
+            error("Error: (Augment) Attempting to augment two incompatible matrices")
+        end
     end
 
     local p = {}
@@ -423,7 +501,7 @@ function RationalAlg.GaussianRowReduce(m)
 end
 
 function RationalAlg.GaussJordanRowReduce(mat)
-    local m = mat
+    local m = RationalAlg.CopyMatrix(mat)
     local result = {{"",RationalAlg.CopyMatrix(m)}}
 
     -- the result will be a table {row operation = matrix }
