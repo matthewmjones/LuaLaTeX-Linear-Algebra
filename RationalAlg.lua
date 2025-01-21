@@ -447,16 +447,17 @@ function RationalAlg.Augment(m, n)
         end
     end
 
+    
+    local totalRows = RationalAlg.GetNumberOfRows(m)
+    local totalCols = RationalAlg.GetNumberOfCols(m) + RationalAlg.GetNumberOfCols(n)
     local p = {}
-    for i = 1, #m do
-        p[i] = {}
-        for j = 1, #m[1] + #n[1] + 1 do
-            if j <= #n then
-                p[i][j] = m[i][j]
-            else
-                p[i][j] = n[i][j - #m]
-            end
+
+    for i = 1, totalRows do
+        local row = m[i]
+        for _, v in ipairs(n[i]) do
+            table.insert(row, v)
         end
+        p[i] = row
     end
     setmetatable(p, getmetatable(m))
     return p
