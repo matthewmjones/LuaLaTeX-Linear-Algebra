@@ -353,12 +353,37 @@ function RationalAlg.Transpose(m)
     return tr
 end
 
-function RationalAlg.IsSquare(m)
+function RationalAlg.isSquare(m)
     return (RationalAlg.GetNumberOfRows(m) == RationalAlg.GetNumberOfCols(m))
 end
 
+function RationalAlg.isUpperTriangular(m)
+    if not RationalAlg.isSquare(m) then
+        return false
+    end
+
+    if RationalAlg.GetNumberOfRows(m) == 1 then
+        return true
+    end
+
+    local result = true
+    for i = 1, RationalAlg.GetNumberOfRows(m) do
+        for j = 1, i - 1 do
+            if m[i][j] ~= Rational.ZERO() then
+                result = false
+            end
+        end
+    end
+    return result
+end
+
+function RationalAlg.isLowerTriangular(m)
+    return RationalAlg.isUpperTriangular(RationalAlg.Transpose(m))
+end
+
+
 function RationalAlg.Inverse(m) 
-    if not RationalAlg.IsSquare(m) then
+    if not RationalAlg.isSquare(m) then
         if tex then
             tex.error("Error: (Inverse) Unable to find inverses of non-square matrices")
         else 
@@ -449,7 +474,6 @@ function RationalAlg.Augment(m, n)
 
     
     local totalRows = RationalAlg.GetNumberOfRows(m)
-    local totalCols = RationalAlg.GetNumberOfCols(m) + RationalAlg.GetNumberOfCols(n)
     local p = {}
 
     for i = 1, totalRows do
@@ -536,6 +560,44 @@ function RationalAlg.isRREF(matrix)
     return rank
 end
 
+function RationalAlg.isREF(matrix)
+    local rank = 0
+    local leadingColumn = 0
+    
+    for i = 1, #matrix do
+        local row = matrix[i]
+        local foundLeadingEntry = false
+        
+        for j = 1, #row do
+            if row[j] ~= Rational.ZERO() then
+                -- Check if the leading entry satisfies REF conditions
+                if j <= leadingColumn then
+                    return false -- Leading entry not to the right of the previous leading entry
+                end
+                
+                -- Check if the column of the leading entry is zero below
+                for k = i + 1, #matrix do
+                    if matrix[k][j] ~= Rational.ZERO() then
+                        return false -- Non-zero value below the leading entry
+                    end
+                end
+                
+                leadingColumn = j
+                foundLeadingEntry = true
+                rank = rank + 1
+                break
+            end
+        end
+        
+        -- If the row has no leading entry, it must be a zero row
+        if not foundLeadingEntry and not isZeroRow(row) then
+            return false
+        end
+    end
+    
+    return rank
+end
+
 -- Helper function to check if a row is all zeros
 function isZeroRow(row)
     for _, value in ipairs(row) do
@@ -546,6 +608,9 @@ function isZeroRow(row)
     return true
 end
 
+-- Function to execute the Gauss-Jordan elimination algorithm 
+-- Input: Matrix mat
+-- Output: Matrix M in Row Reduced Echelon Form, RowOperations R, Rank r
 function RationalAlg.GaussJordanRowReduce(mat)
     local m = RationalAlg.CopyMatrix(mat)
     local result = {{"",RationalAlg.CopyMatrix(m)}}
@@ -603,6 +668,67 @@ function RationalAlg.GaussJordanRowReduce(mat)
     end
     return m, result, RationalAlg.isRREF(m)
 end
+
+-- Function to find the Row Echelon form of a matrix 
+-- Input: Matrix mat
+-- Output: Matrix M in Row Reduced Echelon Form, RowOperations R, Rank r
+function RationalAlg.RowEchelon(mat)
+    local m = RationalAlg.CopyMatrix(mat)
+    local result = {{"",RationalAlg.CopyMatrix(m)}}
+
+    -- the result will be a table {row operation list, matrix}
+    local h = 1
+    local k = 1
+
+    while (h <= RationalAlg.GetNumberOfRows(m)) and (k <= RationalAlg.GetNumberOfCols(m)) do
+        local indx = 0
+        local val = Rational:ZERO()
+        for i = h, RationalAlg.GetNumberOfRows(m) do
+            if m[i][k] ~= Rational:ZERO() then
+                indx = i
+                val = m[i][k]
+                break
+            end
+        end
+
+        if val == Rational:ZERO() then
+            k = k + 1
+        else
+            if indx ~= h then
+                m = RationalAlg.ROSwap(m,h, indx)
+                table.insert(result, {"R_" .. h .. " ↔︎ R_" .. indx, RationalAlg.CopyMatrix(m)})
+            end
+            if val ~= Rational:ONE() then
+                m = RationalAlg.ROMult(m,h, val:reciprocal())
+                if val > Rational:ZERO() then
+                    table.insert(result, {"R_" .. h .. " ← " .. tostring(val:reciprocal()) .." R_" .. h, RationalAlg.CopyMatrix(m)})
+                else
+                    table.insert(result, {"R_" .. h .. " ← -" .. tostring(val:abs():reciprocal()) .." R_" .. h, RationalAlg.CopyMatrix(m)})
+                end
+            end
+            m[h][k] = Rational:ONE()
+
+            for i = h + 1, RationalAlg.GetNumberOfRows(m) do
+                
+                local mult = m[i][k]
+                m[i][k] = Rational:ZERO()
+                for j = k + 1, RationalAlg.GetNumberOfCols(m) do
+                    m[i][j] = m[i][j] - m[h][j] * mult
+                end
+                if mult > Rational:ZERO() then
+                    table.insert(result, {"R_".. i .. " ← R_" .. i .. " - " .. tostring(mult) .. " R_" .. h, RationalAlg.CopyMatrix(m)})
+                elseif mult < Rational:ZERO() then
+                    table.insert(result, {"R_".. i .. " ← R_" .. i .. " + " .. tostring(mult:abs()) .. " R_" .. h, RationalAlg.CopyMatrix(m)})
+                end
+            end
+
+            h = h + 1
+            k = k + 1
+        end
+    end
+    return m, result, RationalAlg.isREF(m)
+end
+
 
 function RationalAlg.RowOpListToString(r)
     local str = ""

@@ -3,13 +3,51 @@ Rational = {
     denominator = 1
 }
 
-function Rational:new(t, numerator, denominator)
+function Rational:new(t, a, b)
     t = t or {}
     setmetatable(t, self)
     self.__index = self
     self.__type = "Rational"
-    self.numerator = numerator or 0
-    self.denominator = denominator or 1
+    
+    -- Handle input as a string, eg "2/3"
+    if type(a) == "string" and not b then
+        -- Remove all whitespace from the string
+        a = a:gsub("%s+", "")
+        
+        local sign = 1
+        if a:sub(1, 1) == "-" then
+            sign = -1
+            a = a:sub(2)
+        end
+        
+        local num_str, den_str = a:match("([^/]+)/([^/]+)")
+        if num_str and den_str then
+            self.numerator = sign * tonumber(num_str)
+            self.denominator = tonumber(den_str)
+        else
+            self.numerator = sign * tonumber(a) or 0
+            self.denominator = 1
+        end
+    else
+        -- Handle traditional numerator/denominator constructor
+        self.numerator = a or 0
+        self.denominator = b or 1
+    end
+    
+    if self.denominator == 0 then
+        if tex then
+            tex.error("Error: Division by zero")
+        else 
+            error("Error: Division by zero")
+        end   
+    end
+    
+    -- Ensure denominator is positive
+    if self.denominator < 0 then
+        self.numerator = -self.numerator
+        self.denominator = -self.denominator
+    end
+    
     t = lowest_form(t)
     return t
 end
@@ -23,13 +61,11 @@ function Rational.ZERO()
 end
 
 function lowest_form(t)
-    -- Put into lowest form using Euclid's algorithm
     local a = t.numerator
     local b = t.denominator
     while b ~= 0 do
         a, b = b, a % b
     end
-    -- a now contains the gcd
     t.numerator = t.numerator // a
     t.denominator = t.denominator // a
     return t
