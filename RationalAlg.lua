@@ -2,6 +2,266 @@ RationalAlg = {}
 
 require "Rational"
 
+--[[
+List of functions in RationalAlg.lua
+
+1) RationalAlg.MatrixToTeX(m, xfrac)
+   Inputs:
+     - m: A matrix
+     - xfrac (optional): Boolean (default false), controlling fraction display
+   Output:
+     - A string containing the matrix using AMSLaTeX pmatrix environment
+
+2) RationalAlg.MatrixToString(m)
+   Inputs:
+     - m: A matrix
+   Output:
+     - A string representation of the matrix in curly brace format
+
+3) RationalAlg.StringToMatrix(str)
+   Inputs:
+     - str: A string in a curly-braced format representing a matrix
+   Output:
+     - A matrix
+
+4) RationalAlg.RandomMatrix(rows, cols, integer)
+   Inputs:
+     - rows: Integer, number of rows
+     - cols: Integer, number of columns
+     - integer (optional): Boolean; if true, uses integer-only entries
+   Output:
+     - A matrix of random numbers
+
+5) RationalAlg.ZeroMatrix(rows, cols)
+   Inputs:
+     - rows: Integer, number of rows
+     - cols: Integer, number of columns
+   Output:
+     - A zero matrix of given size
+
+6) RationalAlg.IdentityMatrix(n)
+   Inputs:
+     - n: Integer, size of the identity matrix
+   Output:
+     - An n×n identity matrix of Rational objects
+
+7) RationalAlg.GetNumberOfRows(m)
+   Inputs:
+     - m: A matrix
+   Output:
+     - Integer count of rows in m
+
+8) RationalAlg.GetNumberOfCols(m)
+   Inputs:
+     - m: A matrix
+   Output:
+     - Integer count of columns in m
+
+9) RationalAlg.EqualSize(m, n)
+   Inputs:
+     - m, n: Two 2D tables (matrices)
+   Output:
+     - Boolean indicating if m and n have the same dimensions
+
+10) RationalAlg.GetColumn(m, col1)
+    Inputs:
+      - m: A matrix
+      - col1: Integer, column index
+    Output:
+      - The column number col1 of m as a single-column matrix
+
+11) RationalAlg.SetColumn(m, col1, newcolumn)
+    Inputs:
+      - m: A matrix
+      - col1: Integer, column index
+      - newcolumn: Single-column matrix to insert at col1
+    Output:
+      - The modified matrix m with the specified column replaced
+
+12) RationalAlg.GetRow(m, row1)
+    Inputs:
+      - m: A matrix
+      - row1: Integer, row index
+    Output:
+      - A single-column matrix representing that row
+
+13) RationalAlg.SetRow(m, row1, newrow)
+    Inputs:
+      - m: A matrix
+      - row1: Integer, row index
+      - newrow: Single-row matrix to assign at row1
+    Output:
+      - The modified matrix m with that row replaced
+
+14) RationalAlg.ToArray(m)
+    Inputs:
+      - m: A matrix
+    Output:
+      - An array
+
+15) RationalAlg.DotProduct(m, n)
+    Inputs:
+      - m, n: Single-column matrices of the same size
+    Output:
+      - The dot product of m and n
+
+16) RationalAlg.Add(m, n)
+    Inputs:
+      - m, n: Two matrices of the same dimensions
+    Output:
+      - A new matrix that is the element-wise sum of m and n
+
+17) RationalAlg.Subtract(m, n)
+    Inputs:
+      - m, n: Two matrices of the same dimensions
+    Output:
+      - The matrix m after subtracting n from it element-wise
+
+18) RationalAlg.Multiply(m, n)
+    Inputs:
+      - m: A×B matrix
+      - n: B×C matrix
+    Output:
+      - An A×C matrix (the product m × n)
+
+19) RationalAlg.MultiplyByScalar(m, s)
+    Inputs:
+      - m: A matrix
+      - s: A number or Rational object
+    Output:
+      - A matrix with each element multiplied by s
+
+20) RationalAlg.Transpose(m)
+    Inputs:
+      - m: A matrix
+    Output:
+      - The transpose of m
+
+21) RationalAlg.isSquare(m)
+    Inputs:
+      - m: A matrix
+    Output:
+      - Boolean indicating whether m has an equal number of rows and columns
+
+22) RationalAlg.isUpperTriangular(m)
+    Inputs:
+      - m: A matrix
+    Output:
+      - Boolean indicating whether m is an upper triangular matrix
+
+23) RationalAlg.isLowerTriangular(m)
+    Inputs:
+      - m: A matrix
+    Output:
+      - Boolean indicating whether m is a lower triangular matrix
+
+24) RationalAlg.Inverse(m)
+    Inputs:
+      - m: An n×n square matrix
+    Output:
+      - The inverse matrix of m (if it exists), or nil if not invertible
+
+25) RationalAlg.ROSwap(m, row1, row2)
+    Inputs:
+      - m: A matrix
+      - row1, row2: Row indices
+    Output:
+      - A new matrix with the specified rows swapped
+
+26) RationalAlg.ROAdd(m, row1, row2)
+    Inputs:
+      - m: A matrix
+      - row1, row2: Row indices
+    Output:
+      - A new matrix with row1 replaced by (row1 + row2)
+
+27) RationalAlg.ROMult(m, row1, const)
+    Inputs:
+      - m: A matrix
+      - row1: Row index
+      - const: A number or Rational representing the multiplier
+    Output:
+      - A new matrix with row1 scaled by const
+
+28) RationalAlg.ROMultAndAdd(m, row1, row2, const)
+    Inputs:
+      - m: A matrix
+      - row1, row2: Row indices
+      - const: A number or Rational
+    Output:
+      - A new matrix with row1 replaced by row1 + (row2 × const)
+
+29) RationalAlg.CopyMatrix(t)
+    Inputs:
+      - t: A matrix
+    Output:
+      - A new matrix that is a copy of t
+
+30) RationalAlg.Augment(m, n)
+    Inputs:
+      - m, n: Two matrices with the same number of rows
+    Output:
+      - A new matrix formed by appending n’s columns to m
+
+31) RationalAlg.Split(m, c)
+    Inputs:
+      - m: A matrix
+      - c: Integer column index at which to split
+    Output:
+      - Two matrices: left (first c columns) and right (remaining columns)
+
+32) RationalAlg.isRREF(matrix)
+    Inputs:
+      - matrix: A matrix
+    Output:
+      - If matrix is in row-reduced echelon form: returns an integer rank
+      - Otherwise: returns false
+
+33) RationalAlg.isREF(matrix)
+    Inputs:
+      - matrix: A matrix
+    Output:
+      - If matrix is in row echelon form: returns an integer rank
+      - Otherwise: returns false
+
+34) RationalAlg.GaussJordanRowReduce(mat)
+    Inputs:
+      - mat: A matrix
+    Output:
+      - The matrix in RREF form
+      - A list of row operations performed
+      - The rank (integer) of the matrix
+
+35) RationalAlg.RowEchelon(mat)
+    Inputs:
+      - mat: A matrix
+    Output:
+      - The matrix in REF form
+      - A list of row operations performed
+      - The rank (integer) of the matrix
+
+36) RationalAlg.RowOpListToString(r)
+    Inputs:
+      - r: A table of row operations and intermediate matrices
+    Output:
+      - A string representation of the row operations
+
+37) RationalAlg.RowOpListToTeX(result, cols, xfrac)
+    Inputs:
+      - result: A table describing row operation steps
+      - cols (optional): How many matrices per row in the TeX output
+      - xfrac (optional): Boolean controlling fraction display
+    Output:
+      - A TeX-formatted string showing each step of the row operations
+
+38) RationalAlg.PLUDecomposition(A)
+    Inputs:
+      - A: a matrix
+    Output:
+      - P, L, U: matrices such that PA = LU that provide a PLU-decomposition of A 
+]]
+
+
 function RationalAlg.MatrixToTeX(m,xfrac)
     xfrac = xfrac or false
     local result = "\\begin{pmatrix}"
@@ -401,7 +661,7 @@ function RationalAlg.Inverse(m)
     local l, r = RationalAlg.Split(M, n)
     local Rank = RationalAlg.isRREF(l)
     if Rank < n then 
-        return false
+        return nil
     else 
         return r
     end
@@ -757,4 +1017,52 @@ function RationalAlg.RowOpListToTeX(result, cols, xfrac)
     end
 
     return str .. "\\end{alignat*}"
+end
+
+function RationalAlg.PLUDecomposition(A)
+    if not RationalAlg.isSquare(A) then
+        if tex then
+            tex.error("Error: (PLUDecomposition) Cannot find the PLU-decomposition of a non-square matrix")
+        else 
+            error("Error: (PLUDecomposition) Cannot find the PLU-decomposition of a non-square matrix")
+        end
+    end
+
+    local n = RationalAlg.GetNumberOfRows(A)
+    local P = RationalAlg.IdentityMatrix(n)
+    local L = RationalAlg.IdentityMatrix(n)
+    local U = RationalAlg.CopyMatrix(A)
+
+    for k = 1, n-1 do
+        local pivotRow = k
+        local maxVal = Rational.abs(U[k][k])
+        for i = k+1, n do
+            if Rational.abs(U[i][i]) > maxVal then
+                maxVal = Rational.abs(U[i][i])
+                pivotRow = i
+            end
+        end
+
+        if pivotRow ~= k then
+            U = RationalAlg.ROSwap(U, k, pivotRow)
+            P = RationalAlg.ROSwap(P, k, pivotRow)
+
+            if k > 1 then
+                -- swap rows from L between k and pivotRow up to column k-1
+                local left, right = RationalAlg.Split(L, k-1)
+                left = RationalAlg.ROSwap(left, k, pivotRow)
+                L = RationalAlg.Augment(left, right)
+            end
+        end
+
+        for i = k+1, n do
+            L[i][k] = U[i][k] / U[k][k]
+
+            for j = k, n do
+                U[i][j] = U[i][j] - L[i][k] * U[k][j]
+            end
+        end
+    end
+
+    return P, L, U
 end
