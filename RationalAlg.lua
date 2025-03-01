@@ -518,7 +518,7 @@ function RationalAlg.ToArray(m)
 end
 
 function RationalAlg.DotProduct(m,n)
-    if  not RationalAlg.EqualSize(m,n) or RationalAlg.GetNumberOfCols(m) > 1 then
+    if not RationalAlg.EqualSize(m,n) or RationalAlg.GetNumberOfCols(m) > 1 then
         if tex then
             tex.error("Error: (DotProduct) Incompatible sizes")
         else 
@@ -534,7 +534,7 @@ function RationalAlg.DotProduct(m,n)
 end
 
 function RationalAlg.Add(m,n)
-    if  not RationalAlg.EqualSize(m, n) then
+    if not RationalAlg.EqualSize(m, n) then
         if tex then
             tex.error("Error: (Add) Incompatible sizes")
         else 
@@ -559,12 +559,13 @@ function RationalAlg.Subtract(m,n)
         end
     end
 
+    local a = RationalAlg.CopyMatrix(m)
     for i = 1, RationalAlg.GetNumberOfRows(m) do
         for j = 1, RationalAlg.GetNumberOfCols(m) do
-            m[i][j] = m[i][j] - n[i][j]
+            a[i][j] = m[i][j] - n[i][j]
         end
     end
-    return m
+    return a
 end
 
 function RationalAlg.Multiply(m,n)
@@ -654,7 +655,7 @@ function RationalAlg.Inverse(m)
     -- n is the size of the square matrix
     local n = #m
     -- augment matrix and identity
-    local aug = RationalAlg.Augment(m, RationalAlg.IdentityMatrix(n))
+    local aug = RationalAlg.Augment(RationalAlg.CopyMatrix(m), RationalAlg.IdentityMatrix(n))
 
     -- Perform a full Gauss-Jordan
     M = RationalAlg.GaussJordanRowReduce(aug)
