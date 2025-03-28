@@ -45,7 +45,11 @@ function findlowestbase(r)
         end
     end
     if N == 1 then
-        error("Surd: cannot convert integer to surd")
+        if tex then
+            tex.error("Error: (Surd) Cannot convert integer to surd")
+        else 
+            error("Error: (Surd) Cannot convert integer to surd")
+        end
     end
     r.base = N
     r.second = r.second * prod
@@ -67,7 +71,11 @@ function Surd.__add(r,s)
         result.second = r.second + s.second 
         return result
     else
-        error("Surd: Cannot do arithmetic with different bases")
+        if tex then
+            tex.error("Error: (Surd) Cannot do arithmetic with different bases")
+        else 
+            error("Error: (Surd) Cannot do arithmetic with different bases")
+        end
     end
 end
 
@@ -79,7 +87,11 @@ function Surd.__sub(r,s)
         result.second = r.second - s.second
         return result
     else
-        error("Surd: Cannot do arithmetic with different bases")
+        if tex then
+            tex.error("Error: (Surd) Cannot do arithmetic with different bases")
+        else 
+            error("Error: (Surd) Cannot do arithmetic with different bases")
+        end
     end
 end
 
@@ -91,7 +103,11 @@ function Surd.__mul(r,s)
         result.second = r.first * s.second + r.second * s.first
         return result
     else
-        error("Surd: Cannot do arithmetic with different bases")
+        if tex then
+            tex.error("Error: (Surd) Cannot do arithmetic with different bases")
+        else 
+            error("Error: (Surd) Cannot do arithmetic with different bases")
+        end
     end
 end
 
@@ -105,7 +121,11 @@ function Surd.__div(r,s)
         result.second = (r.second * s.first - r.first * s.second) / denom
         return result
     else
-        error("Surd: Cannot do arithmetic with different bases")
+        if tex then
+            tex.error("Error: (Surd) Cannot do arithmetic with different bases")
+        else 
+            error("Error: (Surd) Cannot do arithmetic with different bases")
+        end
     end
 end
 
